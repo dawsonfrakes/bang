@@ -97,6 +97,13 @@ function bang.token_at(s, p)
     p = p + 1
     return {kind=bang.TokenKind.STRING, offset=start, length=p - start}
   end
+  if s:sub(p, p) == "'" then
+    p = p + 1
+    while p <= #s and (((p - 2 < 0 or s:sub(p - 2, p - 2) ~= '\\') and s:sub(p - 1, p - 1)) == '\\' or s:sub(p, p) ~= "'") and s:sub(p, p) ~= '\n' do p = p + 1 end
+    if p > #s or s:sub(p, p) ~= "'" then error("unterminated string literal.") end
+    p = p + 1
+    return {kind=bang.TokenKind.STRING, offset=start, length=p - start}
+  end
   if p + 1 <= #s and s:sub(p, p + 1) == "[[" then
     while p + 1 <= #s and s:sub(p, p + 1) ~= "]]" do p = p + 1 end
     if p + 1 > #s then error("unterminated string literal.") end
