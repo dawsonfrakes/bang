@@ -87,6 +87,19 @@ function bang.token_at(s, p)
     return {kind=bang.TokenKind.IDENTIFIER, offset=start, length=p - start}
   end
   if bang.is_digit(s:sub(p, p)) then
+    local base = 10
+    if p + 1 <= #s and s:sub(p, p) == '0' and (s:sub(p + 1, p + 1) == 'b' or s:sub(p + 1, p + 1) == 'o' or s:sub(p + 1, p + 1) == 'x') then
+      p = p + 1
+      if s:sub(p, p) == 'b' then base = 2 end
+      if s:sub(p, p) == 'o' then base = 8 end
+      if s:sub(p, p) == 'x' then base = 16 end
+      p = p + 1
+    end
+    while p <= #s and bang.is_digit(s:sub(p, p)) do p = p + 1 end
+    if p <= #s and s:sub(p, p) == '.' then p = p + 1 end
+    while p <= #s and bang.is_digit(s:sub(p, p)) do p = p + 1 end
+    if p <= #s and s:sub(p, p):lower() == 'e' then p = p + 1 end
+    if p <= #s and (s:sub(p, p) == '+' or s:sub(p, p) == '-') then p = p + 1 end
     while p <= #s and bang.is_digit(s:sub(p, p)) do p = p + 1 end
     return {kind=bang.TokenKind.NUMBER, offset=start, length=p - start}
   end
