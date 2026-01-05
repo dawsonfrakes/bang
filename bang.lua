@@ -4,7 +4,7 @@ function bang.is_space(c) return c == ' ' or c == '\t' or c == '\n' or c == '\r'
 function bang.is_alpha(c) return 'a' <= c:lower() and c:lower() <= 'z' end
 function bang.is_digit(c) return '0' <= c and c <= '9' end
 function bang.is_alnum(c) return bang.is_alpha(c) or bang.is_digit(c) end
-function bang.is_punct(c) return c == '.' or c == ',' or c == '=' or c == '#' or c == '!' or c == '(' or c == ')' or c == '[' or c == ']' or c == '{' or c == '}' or c == '<' or c == '>' or c == '+' or c == '-' or c == '*' or c == '/' or c == '%' or c == '&' or c == '|' or c == '~' or c == '^' end
+function bang.is_punct(c) return c == '.' or c == ':' or c == ',' or c == '=' or c == '#' or c == '!' or c == '(' or c == ')' or c == '[' or c == ']' or c == '{' or c == '}' or c == '<' or c == '>' or c == '+' or c == '-' or c == '*' or c == '/' or c == '%' or c == '&' or c == '|' or c == '~' or c == '^' end
 
 bang.TokenKind = {}
 bang.TokenKind.END_OF_INPUT = 128
@@ -323,6 +323,12 @@ function bang.parse_leaf(P)
       result = {tag="ast", kind="field", expr=result, field=P.src:sub(token.offset, token.offset + token.length - 1)}
       goto continue
     end
+    if bang.peek(P).kind == string.byte(':') then
+      bang.eat(P, string.byte(':'))
+      local token = bang.eat(P, bang.TokenKind.IDENTIFIER)
+      result = {tag="ast", kind="method", expr=result, method=P.src:sub(token.offset, token.offset + token.length - 1)}
+      goto continue
+    end
     if bang.peek(P).kind == string.byte('(') then
       bang.eat(P, string.byte('('))
       local args = {}
@@ -332,6 +338,11 @@ function bang.parse_leaf(P)
         else break end
       end
       bang.eat(P, string.byte(')'))
+      result = {tag="ast", kind="call", expr=result, args=args}
+      goto continue
+    end
+    if bang.peek(P).kind == string.byte('{') or bang.peek(P).kind == bang.TokenKind.STRING then
+      local args = {bang.parse_expr(P)}
       result = {tag="ast", kind="call", expr=result, args=args}
       goto continue
     end
@@ -543,6 +554,8 @@ function bang.ast_to_lua(S, node)
     return "..."
   elseif node.kind == "field" then
     return bang.ast_to_lua(S, node.expr).."."..node.field
+  elseif node.kind == "method" then
+    return bang.ast_to_lua(S, node.expr)..":"..node.method
   elseif node.kind == "array" then
     local result = ""
     result = result.."{"
