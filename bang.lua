@@ -472,6 +472,14 @@ function bang.parse(src)
   return {tag="ast", kind="module", body=body}
 end
 
+function bang.is_single_identifier(s)
+  if not bang.is_alpha(s:sub(2, 2)) and s:sub(2, 2) ~= '_' then return false end
+  for i=2, #s-1 do
+    if not bang.is_alnum(s:sub(i, i)) and s:sub(i, i) ~= '_' then return false end
+  end
+  return true
+end
+
 function bang.ast_to_lua(S, node)
   local function push_level()
     local save = {}
@@ -581,7 +589,12 @@ function bang.ast_to_lua(S, node)
     result = result.."{"
     for i, arg in ipairs(node.args) do
       if i ~= 1 then result = result..", " end
-      result = result.."["..bang.ast_to_lua(S, arg[1]).."]="..bang.ast_to_lua(S, arg[2])
+      local name = bang.ast_to_lua(S, arg[1])
+      if bang.is_single_identifier(name) then
+        result = result..name:sub(2, -2).."="..bang.ast_to_lua(S, arg[2])
+      else
+        result = result.."["..name.."]="..bang.ast_to_lua(S, arg[2])
+      end
     end
     result = result.."}"
     return result
