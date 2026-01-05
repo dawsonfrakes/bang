@@ -1,0 +1,107 @@
+## Bang
+
+A small transpiler for a syntactic skin over [Lua](https://www.lua.org), written in Lua.
+
+```lua
+-- example.bang
+range = fn(a, b, c)
+  limit = b != nil and b or a
+  step = c or 1
+  assert(step != 0)
+  it_index, it = 1, b != nil and a or 1
+  return fn()
+    if step > 0 and it <= limit or step < 0 and it >= limit
+      a, b = it_index, it
+      it += step
+      it_index += 1
+      return a, b!!!
+
+fact = fn(n)
+  if n <= 1 return n
+  else return n * fact(n - 1)!!
+
+fizzbuzz = fn()
+  for range(fact(4))
+    result = ""
+    if it % 3 == 0 result ..= "Fizz"!
+    if it % 5 == 0 result ..= "Buzz"!
+    print(#result != 0 and result or tostring(it))!!
+
+fizzbuzz()
+
+-- $ lua bang.lua -l example.bang
+local temp = {}
+temp.range = function(a, b, c)
+  local limit = b ~= nil and b or a
+  local step = c or 1
+  assert(step ~= 0)
+  local it_index, it = 1, b ~= nil and a or 1
+  return function()
+    if step > 0 and it <= limit or step < 0 and it >= limit then
+      a, b = it_index, it
+      it = it + (step)
+      it_index = it_index + (1)
+      return a, b
+    end
+  end
+end
+temp.fact = function(n)
+  if n <= 1 then
+    return n
+  else
+    return n * temp.fact(n - 1)
+  end
+end
+temp.fizzbuzz = function()
+  for it_index, it in temp.range(temp.fact(4)) do
+    local result = ""
+    if it % 3 == 0 then
+      result = result .. ("Fizz")
+    end
+    if it % 5 == 0 then
+      result = result .. ("Buzz")
+    end
+    print(#result ~= 0 and result or tostring(it))
+  end
+end
+temp.fizzbuzz()
+return temp
+```
+
+## Differences from Lua
+
+- Block terminator is `!` instead of `end`.
+- Arrays (`[1, 2, 3]`) are distinct from tables (`{x, y=z, ["w"]=5}`).
+- Variables are locally namespaced (`x` => `module_name.x`).
+- Modules return their local namespace (`return module_name`).
+- Keywords `do` and `then` are not used for control flow.
+- Functions (`fn`) are expressions only, not statements.
+- Assignment operators are C-like (`x += y` => `x = x + (y)`), and include `and=`/`or=`.
+- Implicit variables `it` and `it_index` are available in `for` loops.
+- Operator "not equal" is `!=`.
+
+## License
+
+```
+MIT License
+
+Copyright (c) Dawson Frakes
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
