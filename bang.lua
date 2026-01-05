@@ -341,7 +341,7 @@ function bang.parse_leaf(P)
       result = {tag="ast", kind="call", expr=result, args=args}
       goto continue
     end
-    if bang.peek(P).kind == string.byte('{') or bang.peek(P).kind == bang.TokenKind.STRING then
+    if bang.peek(P).kind == string.byte('{') or bang.peek(P).kind == string.byte('[') or bang.peek(P).kind == bang.TokenKind.STRING then
       local args = {bang.parse_expr(P)}
       result = {tag="ast", kind="call", expr=result, args=args}
       goto continue
