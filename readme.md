@@ -79,6 +79,7 @@ return temp
 - Assignment operators are C-like (`x += y` => `x = x + (y)`), and include `and=`/`or=`.
 - Implicit variables `it` and `it_index` are available in `for` loops.
 - Operator "not equal" is `!=`.
+- Table indexing uses a period (`t.[index]` => `t[index]`).
 
 ## License
 

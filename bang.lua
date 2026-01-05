@@ -26,6 +26,7 @@ bang.TokenKind.AMPEQ = 159
 bang.TokenKind.PIPEEQ = 160
 bang.TokenKind.LTLT = 161
 bang.TokenKind.GTGT = 162
+bang.TokenKind.DOTLBRACKET = 163
 bang.TokenKind.DOTDOTEQ = 171
 bang.TokenKind.LTLTEQ = 172
 bang.TokenKind.GTGTEQ = 173
@@ -123,6 +124,7 @@ function bang.token_at(s, p)
     if s:sub(p, p + 1) == "^=" then return {kind=bang.TokenKind.CARETEQ, offset=start, length=2} end
     if s:sub(p, p + 1) == "<<" then return {kind=bang.TokenKind.LTLT, offset=start, length=2} end
     if s:sub(p, p + 1) == ">>" then return {kind=bang.TokenKind.GTGT, offset=start, length=2} end
+    if s:sub(p, p + 1) == ".[" then return {kind=bang.TokenKind.DOTLBRACKET, offset=start, length=2} end
     if s:sub(p, p + 1) == ".." then return {kind=bang.TokenKind.DOTDOT, offset=start, length=2} end
     if s:sub(p, p + 1) == "::" then return {kind=bang.TokenKind.COLONCOLON, offset=start, length=2} end
   end
@@ -321,6 +323,13 @@ function bang.parse_leaf(P)
       bang.eat(P, string.byte('.'))
       local token = bang.eat(P, bang.TokenKind.IDENTIFIER)
       result = {tag="ast", kind="field", expr=result, field=P.src:sub(token.offset, token.offset + token.length - 1)}
+      goto continue
+    end
+    if bang.peek(P).kind == bang.TokenKind.DOTLBRACKET then
+      bang.eat(P, bang.TokenKind.DOTLBRACKET)
+      local attr = bang.parse_expr(P)
+      bang.eat(P, string.byte(']'))
+      result = {tag="ast", kind="attr", expr=result, attr=attr}
       goto continue
     end
     if bang.peek(P).kind == string.byte(':') then
@@ -554,6 +563,8 @@ function bang.ast_to_lua(S, node)
     return "..."
   elseif node.kind == "field" then
     return bang.ast_to_lua(S, node.expr).."."..node.field
+  elseif node.kind == "attr" then
+    return bang.ast_to_lua(S, node.expr).."["..bang.ast_to_lua(S, node.attr).."]"
   elseif node.kind == "method" then
     return bang.ast_to_lua(S, node.expr)..":"..node.method
   elseif node.kind == "array" then
