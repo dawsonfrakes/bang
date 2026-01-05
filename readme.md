@@ -30,8 +30,8 @@ fizzbuzz = fn()
 fizzbuzz()
 
 -- $ lua bang.lua -l example.bang
-local temp = {}
-temp.range = function(a, b, c)
+local example = {}
+example.range = function(a, b, c)
   local limit = b ~= nil and b or a
   local step = c or 1
   assert(step ~= 0)
@@ -45,15 +45,15 @@ temp.range = function(a, b, c)
     end
   end
 end
-temp.fact = function(n)
+example.fact = function(n)
   if n <= 1 then
     return n
   else
-    return n * temp.fact(n - 1)
+    return n * example.fact(n - 1)
   end
 end
-temp.fizzbuzz = function()
-  for it_index, it in temp.range(temp.fact(4)) do
+example.fizzbuzz = function()
+  for it_index, it in example.range(example.fact(4)) do
     local result = ""
     if it % 3 == 0 then
       result = result .. ("Fizz")
@@ -64,8 +64,8 @@ temp.fizzbuzz = function()
     print(#result ~= 0 and result or tostring(it))
   end
 end
-temp.fizzbuzz()
-return temp
+example.fizzbuzz()
+return example
 ```
 
 ## Differences from Lua
