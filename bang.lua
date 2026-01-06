@@ -517,6 +517,7 @@ function bang.ast_to_lua(S, node)
   if node.kind == "module" then
     local result = ""
     result = result.."local "..S.name.." = {}\n"
+    result = result..S.name.."._M = "..S.name.."\n"
     for i, node2 in ipairs(node.body) do
       result = result..bang.ast_to_lua(S, node2).."\n"
     end

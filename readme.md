@@ -74,12 +74,15 @@ return example
 - Arrays (`[1, 2, 3]`) are distinct from tables (`{x, y=z, ["w"]=5}`).
 - Variables are locally namespaced (`x` => `module_name.x`).
 - Modules return their local namespace (`return module_name`).
-- Keywords `do` and `then` are not used for control flow.
 - Functions (`fn`) are expressions only, not statements.
-- Assignment operators are C-like (`x += y` => `x = x + (y)`), and include `and=`/`or=`.
-- Implicit variables `it` and `it_index` are available in `for` loops.
-- Operator "not equal" is `!=`.
+- Assignment operators are C-like (`x += y` => `x = x + (y)`), and include `and=`/`or=`/`..=`.
+- Implicit variables `it` and `it_index` are used in `for` loops.
+- Range based `for` loops do not exist.
 - Table indexing uses a period (`t.[index]` => `t[index]`).
+- Module scope variables can be reassigned (`_M.index = value`).
+- Keywords `do` and `then` are not used for control flow.
+- Keyword `elseif` is shortened to `elif`.
+- Operator "not equal" is `!=`.
 
 ## License
 
