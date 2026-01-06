@@ -525,7 +525,7 @@ function bang.ast_to_lua(S, node)
     return result
   elseif node.kind == "assign" then
     local result = ""
-    if S.level > 0 and node.targets[1].kind == "ref" and S.env[node.targets[1].ref] == nil then
+    if S.level > 0 and (#node.targets > 1 or (node.targets[1].kind == "ref" and S.env[node.targets[1].ref] == nil)) then
       for i, target in ipairs(node.targets) do
         assert(target.kind == "ref")
         S.env[target.ref] = true

@@ -4,11 +4,12 @@ A small transpiler for a syntactic skin over [Lua](https://www.lua.org), written
 
 ```lua
 -- example.bang
-range = fn(a, b, c)
-  limit = b != nil and b or a
-  step = c or 1
+range = fn(a, limit, step)
+  init = limit and a or 1
+  limit or= a
+  step or= 1
   assert(step != 0)
-  it_index, it = 1, b != nil and a or 1
+  it_index, it = 1, init
   return fn()
     if step > 0 and it <= limit or step < 0 and it >= limit
       a, b = it_index, it
@@ -23,22 +24,25 @@ fact = fn(n)
 fizzbuzz = fn()
   for range(fact(4))
     result = ""
-    if it % 3 == 0 result ..= "Fizz"!
-    if it % 5 == 0 result ..= "Buzz"!
-    print(#result != 0 and result or tostring(it))!!
+    if it % 3 == 0  result ..= "Fizz"!
+    if it % 5 == 0  result ..= "Buzz"!
+    if #result == 0 result ..= tostring(it)!
+    print(result)!!
 
 fizzbuzz()
 
 -- $ lua bang.lua -l example.bang
 local example = {}
-example.range = function(a, b, c)
-  local limit = b ~= nil and b or a
-  local step = c or 1
+example._M = example
+example.range = function(a, limit, step)
+  local init = limit and a or 1
+  limit = limit or (a)
+  step = step or (1)
   assert(step ~= 0)
-  local it_index, it = 1, b ~= nil and a or 1
+  local it_index, it = 1, init
   return function()
     if step > 0 and it <= limit or step < 0 and it >= limit then
-      a, b = it_index, it
+      local a, b = it_index, it
       it = it + (step)
       it_index = it_index + (1)
       return a, b
@@ -61,7 +65,10 @@ example.fizzbuzz = function()
     if it % 5 == 0 then
       result = result .. ("Buzz")
     end
-    print(#result ~= 0 and result or tostring(it))
+    if #result == 0 then
+      result = result .. (tostring(it))
+    end
+    print(result)
   end
 end
 example.fizzbuzz()
