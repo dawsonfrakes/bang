@@ -324,10 +324,16 @@ function bang.parse_leaf(P)
     bang.eat(P, string.byte('('))
     local params = {}
     while bang.peek(P).kind ~= string.byte(')') do
-      local token = bang.eat(P, bang.TokenKind.IDENTIFIER)
-      table.insert(params, P.src:sub(token.offset, token.offset + token.length - 1))
-      if bang.peek(P).kind == string.byte(',') then bang.eat(P, string.byte(','))
-      else break end
+      if bang.peek(P).kind == bang.TokenKind.DOTDOTDOT then
+        bang.eat(P, bang.TokenKind.DOTDOTDOT)
+        table.insert(params, "...")
+        break
+      else
+        local token = bang.eat(P, bang.TokenKind.IDENTIFIER)
+        table.insert(params, P.src:sub(token.offset, token.offset + token.length - 1))
+        if bang.peek(P).kind == string.byte(',') then bang.eat(P, string.byte(','))
+        else break end
+      end
     end
     bang.eat(P, string.byte(')'))
     local body = {}
