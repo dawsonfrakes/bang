@@ -4,7 +4,7 @@ function bang.is_space(c) return c == ' ' or c == '\t' or c == '\n' or c == '\r'
 function bang.is_alpha(c) return 'a' <= c:lower() and c:lower() <= 'z' end
 function bang.is_digit(c) return '0' <= c and c <= '9' end
 function bang.is_alnum(c) return bang.is_alpha(c) or bang.is_digit(c) end
-function bang.is_punct(c) return c == '.' or c == ':' or c == ',' or c == '=' or c == '#' or c == '!' or c == '(' or c == ')' or c == '[' or c == ']' or c == '{' or c == '}' or c == '<' or c == '>' or c == '+' or c == '-' or c == '*' or c == '/' or c == '%' or c == '&' or c == '|' or c == '~' or c == '^' end
+function bang.is_punct(c) return c == '.' or c == ':' or c == ',' or c == ';' or c == '=' or c == '#' or c == '!' or c == '(' or c == ')' or c == '[' or c == ']' or c == '{' or c == '}' or c == '<' or c == '>' or c == '+' or c == '-' or c == '*' or c == '/' or c == '%' or c == '&' or c == '|' or c == '~' or c == '^' end
 
 bang.TokenKind = {}
 bang.TokenKind.END_OF_INPUT = 128
@@ -282,6 +282,7 @@ function bang.parse_leaf(P)
     while bang.peek(P).kind ~= string.byte(']') do
       table.insert(args, bang.parse_expr(P))
       if bang.peek(P).kind == string.byte(',') then bang.eat(P, string.byte(','))
+      elseif bang.peek(P).kind == string.byte(';') then bang.eat(P, string.byte(';'))
       else break end
     end
     bang.eat(P, string.byte(']'))
@@ -315,6 +316,7 @@ function bang.parse_leaf(P)
         table.insert(args, {name, value})
       end
       if bang.peek(P).kind == string.byte(',') then bang.eat(P, string.byte(','))
+      elseif bang.peek(P).kind == string.byte(';') then bang.eat(P, string.byte(';'))
       else break end
     end
     bang.eat(P, string.byte('}'))
